@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use App\Post;
+use App\User;
 
 class PostSeeder extends Seeder
 {
@@ -12,6 +13,16 @@ class PostSeeder extends Seeder
      */
     public function run()
     {
-        factory(Post::class, 20) -> create();
+        
+        factory(Post::class, 20)
+            -> make()
+            -> each(function($post) {
+
+                $user = User::inRandomOrder() -> first();
+
+                $post -> user() -> associate($user);
+                $post -> save();
+            });
+
     }
 }

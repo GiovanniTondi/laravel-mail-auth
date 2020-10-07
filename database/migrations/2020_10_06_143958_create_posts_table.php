@@ -19,6 +19,8 @@ class CreatePostsTable extends Migration
             $table -> string('title', 60);
             $table -> string('description');
 
+            $table -> bigInteger('user_id') -> unsigned();
+
             $table -> timestamps();
         });
     }
