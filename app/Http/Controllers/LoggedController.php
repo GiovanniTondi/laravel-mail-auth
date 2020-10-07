@@ -22,21 +22,32 @@ class LoggedController extends Controller
 
         $post = Post::findOrFail($id);
 
-        return view('post-edit', compact('post'));
+        if ($post -> user_id === Auth::user() -> id) {
+
+            return view('post-edit', compact('post'));
+        }
+
+        return redirect() -> route('post-show', $id);
     }
 
     public function update(Request $request, $id) {
 
         $data = $request -> all();
         $post = Post::findOrFail($id);
-        $postEx = clone $post;
 
-        $post -> update($data);
+        if ($post -> user_id === Auth::user() -> id) {
 
-        $user = Auth::user();
-        $action = 'EDIT';
+            $postEx = clone $post;
 
-        Mail::to('admin@bool.it') -> send(new PostEdit($user, $action, $post, $postEx));
+            $post -> update($data);
+
+            $user = Auth::user();
+            $action = 'EDIT';
+
+            Mail::to('admin@bool.it') -> send(new PostEdit($user, $action, $post, $postEx));
+
+            return redirect() -> route('post-show', $id);
+        }
 
         return redirect() -> route('post-show', $id);
     }
@@ -45,13 +56,18 @@ class LoggedController extends Controller
 
         $post = Post::findOrFail($id);
 
-        $post -> delete();
+        if ($post -> user_id === Auth::user() -> id) {
 
-        $user = Auth::user();
-        $action = 'DELETE';
+            $post -> delete();
 
-        Mail::to('admin@bool.it') -> send(new PostDelete($user, $action, $post));
+            $user = Auth::user();
+            $action = 'DELETE';
 
-        return redirect() -> route('post-index');
+            Mail::to('admin@bool.it') -> send(new PostDelete($user, $action, $post));
+
+            return redirect() -> route('post-index');
+        }
+
+        return redirect() -> route('post-show', $id);
     }
 }
